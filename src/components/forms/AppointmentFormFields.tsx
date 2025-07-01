@@ -17,15 +17,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Control } from 'react-hook-form';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { FormValues } from '../AppointmentForm';
+import { AppointmentType } from '@/api';
 
-const SERVICES = [
-  { id: "manicure", name: { en: "Manicure", ar: "مانيكير" }, duration: 45 },
-  { id: "pedicure", name: { en: "Pedicure", ar: "باديكير" }, duration: 60 },
-  { id: "gel-nails", name: { en: "Gel Nails", ar: "أظافر جل" }, duration: 75 },
-  { id: "nail-art", name: { en: "Nail Art", ar: "فن الأظافر" }, duration: 90 },
-  { id: "polish-change", name: { en: "Polish Change", ar: "تغيير الطلاء" }, duration: 30 },
-  { id: "acrylic-full-set", name: { en: "Acrylic Full Set", ar: "مجموعة أكريليك كاملة" }, duration: 90 },
-  { id: "acrylic-fill", name: { en: "Acrylic Fill", ar: "تعبئة أكريليك" }, duration: 60 },
+const TypesOptions = [
+  { id: AppointmentType.Manicure, name: { en: "Manicure", ar: "مانيكير" }, duration: 45 },
+  { id: AppointmentType.Pedicure, name: { en: "Pedicure", ar: "باديكير" }, duration: 60 },
+  { id: AppointmentType.Both, name: { en: "Both", ar: "كلاهما" }, duration: 90 },
 ];
 
 const generateTimeOptions = () => {
@@ -50,14 +48,6 @@ const generateTimeOptions = () => {
 
 const TIME_OPTIONS = generateTimeOptions();
 
-interface FormValues {
-  clientName: string;
-  service: string;
-  time: string;
-  duration: number;
-  phone: string;
-  notes?: string;
-}
 
 interface AppointmentFormFieldsProps {
   control: Control<FormValues>;
@@ -71,7 +61,7 @@ const AppointmentFormFields = ({ control, onServiceChange }: AppointmentFormFiel
     <div className="space-y-4">
       <FormField
         control={control}
-        name="clientName"
+        name="name"
         render={({ field }) => (
           <FormItem>
             <FormLabel>{t('clientName')}</FormLabel>
@@ -99,7 +89,7 @@ const AppointmentFormFields = ({ control, onServiceChange }: AppointmentFormFiel
 
       <FormField
         control={control}
-        name="service"
+        name="type"
         render={({ field }) => (
           <FormItem>
             <FormLabel>{t('service')}</FormLabel>
@@ -116,7 +106,7 @@ const AppointmentFormFields = ({ control, onServiceChange }: AppointmentFormFiel
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {SERVICES.map((service) => (
+                {TypesOptions.map((service) => (
                   <SelectItem key={service.id} value={service.id}>
                     {service.name[language]} ({service.duration} {t('minute')})
                   </SelectItem>
@@ -174,4 +164,4 @@ const AppointmentFormFields = ({ control, onServiceChange }: AppointmentFormFiel
   );
 };
 
-export { AppointmentFormFields, SERVICES };
+export { AppointmentFormFields, TypesOptions };

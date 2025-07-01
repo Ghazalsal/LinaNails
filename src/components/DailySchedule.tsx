@@ -9,25 +9,16 @@ import {
 } from "@/components/ui/card";
 import { useLanguage } from '@/contexts/LanguageContext';
 import DayAppointments from './DayAppointments';
-
-export interface Appointment {
-  id: string;
-  clientName: string;
-  service: string;
-  time: string;
-  duration: number;
-  phone: string;
-  notes?: string;
-}
+import { BackendAppointment } from '@/api';
 
 const DailySchedule = ({
   date,
   appointments,
-  onAddAppointment
+  onAppointmentsChange
 }: {
   date: Date;
-  appointments: Appointment[];
-  onAddAppointment: (appointment: Omit<Appointment, 'id'>) => void;
+  appointments: BackendAppointment[];
+  onAppointmentsChange?: () => void;
 }) => {
   const { language, t } = useLanguage();
 
@@ -36,7 +27,22 @@ const DailySchedule = ({
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
           <CardTitle className="text-xl font-serif text-salon-gold" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-            {format(date, "EEEE, MMMM d, yyyy")}
+            {(() => {
+              // Get the formatted date parts
+              const day = format(date, "EEEE");
+              const month = format(date, "MMMM");
+              const dayNum = format(date, "d");
+              const year = format(date, "yyyy");
+              
+              // Translate day and month
+              const translatedDay = t(day);
+              const translatedMonth = t(month);
+              
+              // Return formatted date string based on language
+              return language === 'ar'
+                ? `${translatedDay}، ${dayNum} ${translatedMonth}، ${year}`
+                : `${translatedDay}, ${translatedMonth} ${dayNum}, ${year}`;
+            })()}
           </CardTitle>
         </div>
       </CardHeader>
@@ -44,7 +50,7 @@ const DailySchedule = ({
         <DayAppointments 
           date={date}
           appointments={appointments}
-          onAddAppointment={onAddAppointment}
+          onAppointmentsChange={onAppointmentsChange}
         />
       </CardContent>
     </Card>

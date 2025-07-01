@@ -13,6 +13,24 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
+  // Handle day selection to normalize the date to noon to avoid timezone issues
+  const handleDaySelect = React.useCallback(
+    (day: Date | undefined) => {
+      console.log({day })
+      if (!day) {
+        props.onSelect?.(undefined);
+        return;
+      }
+
+      // Normalize to noon to avoid timezone issues
+      const normalizedDate = new Date(day);
+      normalizedDate.setHours(12, 0, 0, 0);
+      console.log('Normalized date:', normalizedDate);
+      props.onSelect?.(normalizedDate);
+    },
+    [props.onSelect]
+  );
+
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -55,6 +73,7 @@ function Calendar({
         IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
       }}
+      onSelect={handleDaySelect}
       {...props}
     />
   );
