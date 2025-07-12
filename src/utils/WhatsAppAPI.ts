@@ -1,157 +1,91 @@
-import { toast } from '@/hooks/use-toast';
+import dotenv from "dotenv";
+dotenv.config();
 
-// WhatsApp Business API configuration
 export interface WhatsAppConfig {
   apiVersion: string;
   phoneNumberId: string;
-  // The access token is used for authentication with the WhatsApp Business API
-  // It can be omitted if you're using a different authentication method or
-  // if you're only using the browser-based fallback method
-  accessToken?: string; // Made optional with '?'
+  accessToken: string;
 }
 
-// Default configuration - using environment variables
-const defaultConfig: WhatsAppConfig = {
-  apiVersion: import.meta.env.VITE_WHATSAPP_API_VERSION || 'v17.0', // Use env variable or default to v17.0
-  phoneNumberId: import.meta.env.VITE_WHATSAPP_PHONE_NUMBER_ID || '',
-  accessToken: import.meta.env.VITE_WHATSAPP_ACCESS_TOKEN || ''
+const config: WhatsAppConfig = {
+  apiVersion: process.env.WHATSAPP_VERSION! || "v22.0",
+  phoneNumberId: process.env.WHATSAPP_ID! || "741850909002950",
+  accessToken: process.env.WHATSAPP_TOKEN! || "EAAKhhtZApsEcBPGaX7IQ2spK0Rcyh6dVaR7ACwrr7ZCDUwpHFd72U1xbQT4OjxTafuNvjkgyKDiaeVnd5y7ZAXk8h2mWm3F1ffkAD9TCV79SZANvpQRnkDBPYPjp3l1PlTqgm9HMLyF4Xur5ZBBeZCK5hW7moojjsAIT0vZBMEDkaKTypMNIZA6hwbBocZAvWgSaOyxsLioBhKB1YZBsYofKL2J968Kt63d5XKkNEERzNbcD6TKYAZCS211DjpIHOBkxAZDZD", // <-- Don't forget to update this!
 };
 
-/**
- * Send a message using the WhatsApp Business API
- * @param phoneNumber - The recipient's phone number (should include country code without + or spaces)
- * @param message - The message text to send
- * @param config - Optional WhatsApp API configuration
- * @returns Promise that resolves to the API response or rejects with an error
- */
 export const sendWhatsAppMessage = async (
   phoneNumber: string,
-  message: string,
-  config: WhatsAppConfig = defaultConfig
+  clientName: string,
+  date: string,
+  time: string,
+  service: string
 ): Promise<Response> => {
-  // Clean the phone number (remove non-digits)
-  const cleanedPhoneNumber = phoneNumber.replace(/[^\d]/g, '');
-  
-  // Ensure we have the required configuration
-  if (!config.phoneNumberId) {
-    throw new Error('WhatsApp Business API configuration is missing');
+  const cleanedPhoneNumber = phoneNumber.replace(/[^\d]/g, "");
+  const { phoneNumberId, accessToken, apiVersion } = config;
+
+  if (!phoneNumberId || !accessToken || !apiVersion) {
+    throw new Error("WhatsApp Business API configuration is missing or invalid.");
   }
 
-  // Prepare the API URL
-  // The phone number ID should be prefixed with the version
-  const apiUrl = `https://graph.facebook.com/${config.apiVersion}/${config.phoneNumberId}/messages`;
-  
-  // Prepare the request body according to WhatsApp Cloud API documentation
+  const apiUrl = `https://graph.facebook.com/${apiVersion}/${phoneNumberId}/messages`;
+
   const requestBody = {
-    messaging_product: 'whatsapp',
-    recipient_type: 'individual',
+    messaging_product: "whatsapp",
     to: cleanedPhoneNumber,
-    type: 'text',
-    text: {
-      preview_url: true, // Enable link previews if the message contains URLs
-      body: message
+    recipient_type: "individual",
+    type: "template",
+    template: {
+      name: "lina_appointment2",
+      language: {
+        code: "ar", // Arabic language
+      },
+      components: [
+        {
+          type: "header",
+          parameters: [
+            {
+              type: "image",
+              image: {
+                link: "https://raw.githubusercontent.com/Ghazalsal/image/main/315547457_114440274812316_1595265513982162514_n.png"
+              }
+            }
+          ]
+        },
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: clientName }, // {{1}}
+            { type: "text", text: date },       // {{2}}
+            { type: "text", text: time },       // {{3}}
+            { type: "text", text: service },    // {{4}}
+          ]
+        }
+      ]
     }
   };
 
+  console.log("📤 Sending WhatsApp message to:", cleanedPhoneNumber);
+
   try {
-    // Make the API request
     const response = await fetch(apiUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        ...(config.accessToken ? { 'Authorization': `Bearer ${config.accessToken}` } : {})
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify(requestBody),
     });
 
-    // Check if the request was successful
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('WhatsApp API Error Details:', JSON.stringify(errorData, null, 2));
-      throw new Error(`WhatsApp API Error: ${errorData.error?.message || response.statusText}`);
+      console.error("❌ WhatsApp API Error:", errorData);
+      throw new Error(errorData.error?.message || "Unknown error from WhatsApp API.");
     }
 
+    console.log("✅ Message sent successfully");
     return response;
-  } catch (error) {
-    console.error('Error sending WhatsApp message:', error);
-    throw error;
+  } catch (err) {
+    console.error("🚨 Failed to send WhatsApp message:", err);
+    throw err;
   }
-};
-
-/**
- * Fallback method to open WhatsApp in browser if the API is not configured
- * @param phoneNumber - The recipient's phone number
- * @param message - The message text to send
- */
-export const openWhatsAppInBrowser = (phoneNumber: string, message: string): void => {
-  const cleanedPhoneNumber = phoneNumber.replace(/[^\d]/g, '');
-  const whatsappUrl = `https://wa.me/${cleanedPhoneNumber}?text=${encodeURIComponent(message)}`;
-  window.open(whatsappUrl, '_blank');
-};
-
-/**
- * Send a WhatsApp message using the Business API if configured, otherwise fall back to browser method
- * @param phoneNumber - The recipient's phone number
- * @param message - The message text to send
- * @param config - Optional WhatsApp API configuration
- * @param forceDirect - If true, will only try direct API sending without browser fallback
- * @returns Promise that resolves when the message is sent or the fallback is used
- */
-export const sendWhatsAppMessageWithFallback = async (
-  phoneNumber: string,
-  message: string,
-  config: WhatsAppConfig = defaultConfig,
-  forceDirect: boolean = true
-): Promise<boolean> => {
-  // Check if the API is properly configured with a phone number ID and access token
-  if (!config.phoneNumberId || !config.accessToken) {
-    console.warn('WhatsApp API configuration incomplete: Missing phoneNumberId or accessToken');
-    toast({
-      title: "Configuration Missing",
-      description: "WhatsApp Business API is not fully configured. Please check your .env file.",
-      variant: "destructive",
-    });
-    return false;
-  }
-
-  try {
-    // Try to send via the API
-    console.log('Attempting to send WhatsApp message via API to:', phoneNumber);
-    const response = await sendWhatsAppMessage(phoneNumber, message, config);
-    
-    // Log the successful response for debugging
-    const responseData = await response.json();
-    console.log('WhatsApp API response:', responseData);
-    
-    toast({
-      title: "Message Sent",
-      description: "WhatsApp message was sent successfully via the WhatsApp Business API.",
-    });
-    return true;
-  } catch (error) {
-    console.error('Failed to send via WhatsApp API:', error);
-    
-    // If forceDirect is true, don't fall back to browser method
-    if (forceDirect) {
-      toast({
-        title: "Message Failed",
-        description: `Could not send WhatsApp message directly: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your API configuration and logs for details.`,
-        variant: "destructive",
-      });
-      return false;
-    }
-      
-      // Fall back to browser method if API fails and forceDirect is false
-       toast({
-         title: "Direct Sending Failed",
-         description: "Falling back to WhatsApp web interface.",
-       });
-       
-       // Open in browser as fallback
-       openWhatsAppInBrowser(phoneNumber, message);
-       return true;
-     }
-   
-   // This code should never be reached with the new implementation
-   return false;
 };

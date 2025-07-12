@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,30 +6,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Edit, Trash2, MessageSquare } from "lucide-react";
+import { MessageCircle, Edit, Trash2  } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
-  createWhatsAppMessage,
   formatTimeForDisplay,
-  sendWhatsAppReminder,
 } from "@/utils/AppointmentUtils";
 import { BackendAppointment } from "@/api";
 import AppointmentForm from "../AppointmentForm";
-import { useLanguage, translations } from "@/contexts/LanguageContext";
-import WhatsAppTemplateEditor from "../WhatsAppTemplateEditor";
+import { useLanguage } from "@/contexts/LanguageContext";
+import {sendWhatsAppMessage } from "../../utils/WhatsAppAPI"
+import { AppointmentDetailsModalProps } from "./types";
 
-interface AppointmentDetailsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  appointment: BackendAppointment | undefined;
-  date: Date;
-  onUpdate?: (
-    id: string,
-    data: Partial<Omit<BackendAppointment, "id">>
-  ) => void;
-  onDelete?: (id: string) => void;
-  isLoading?: boolean;
-}
 
 const AppointmentDetailsModal = ({
   isOpen,
@@ -43,87 +30,34 @@ const AppointmentDetailsModal = ({
   const { toast } = useToast();
   const { language, t } = useLanguage();
   const [showEditForm, setShowEditForm] = useState(false);
-  const [showTemplateEditor, setShowTemplateEditor] = useState(false);
-  const [messageTemplate, setMessageTemplate] = useState('');
   const [isSending, setIsSending] = useState(false);
-  
-  // Load the saved template or use the default one
-  useEffect(() => {
-    const savedTemplate = localStorage.getItem(`whatsappTemplate_${language}`);
-    setMessageTemplate(savedTemplate || translations[language].whatsappMessageTemplate);
-  }, [language]);
 
   const handleSendWhatsAppReminder = async () => {
     if (!appointment) return;
     
-    // Set loading state
     setIsSending(true);
-
-    try {
-      // Check if phone number is valid
       if (!appointment.phone || appointment.phone.trim() === '') {
         toast({
           title: t("reminderError"),
-          description: t("missingPhoneNumber") || "Client phone number is missing",
+          description: t("missingPhoneNumber"),
           variant: "destructive"
         });
         return;
       }
-
-      // Create the message using the template
-      const message = createWhatsAppMessage(
-        appointment.name,
-        date,
-        appointment.time,
-        appointment.type,
-        language === "ar" // Pass the language parameter
-      );
-
-      console.log('Sending WhatsApp reminder to:', appointment.phone);
-      console.log('Message content:', message);
-
-      // Use the example message from the user's request if this is a test
-      const testMessage = "Hello ghazal salameh, this is a reminder for your appointment at Lina Pure Nails: Date: 06/25/2025 Time: 2:00 PM Service: PEDICURE We look forward to seeing you!";
-      const finalMessage = appointment.phone === "+972 59-814-7428" ? testMessage : message;
-      
-      // Send the message directly without browser fallback
-      const success = await sendWhatsAppReminder(appointment.phone, finalMessage);
+      const success = await sendWhatsAppMessage(appointment.phone, appointment.name, date.toLocaleDateString(), appointment.time, appointment.type);
 
       if (success) {
         toast({
           title: t("reminderSent"),
-          description: t("reminderSentDirectly") || "Message sent directly via WhatsApp API",
+          description: t("reminderSentDirectly")
         });
       } else {
         toast({
           title: t("reminderError"),
-          description: t("whatsappSendError") || "Failed to send WhatsApp message. Please check API configuration.",
+          description: t("whatsappSendError"),
           variant: "destructive"
         });
       }
-    } catch (error) {
-      console.error('Error sending WhatsApp reminder:', error);
-      toast({
-        title: t("reminderError"),
-        description: `${t("whatsappSendError")}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive"
-      });
-    } finally {
-      setIsSending(false);
-    }
-  };
-  
-
-  
-
-  
-  const handleEditTemplate = () => {
-    setShowTemplateEditor(true);
-  };
-  
-  const handleSaveTemplate = (template: string) => {
-    setMessageTemplate(template);
-    localStorage.setItem(`whatsappTemplate_${language}`, template);
   };
 
   const handleEdit = () => {
@@ -268,13 +202,6 @@ const AppointmentDetailsModal = ({
                     <MessageCircle className="h-4 w-4" />
                     {isSending ? t("Loading...") : t("sendWhatsAppReminder")}
                   </Button>
-                  <Button
-                    onClick={handleEditTemplate}
-                    variant="outline"
-                    className="text-sm flex items-center justify-center gap-2 w-full h-10 px-4"
-                  >
-                    {t("editMessageTemplate")}
-                  </Button>
                 </div>
               )}
             </div>
@@ -282,14 +209,6 @@ const AppointmentDetailsModal = ({
         </div>
       </DialogContent>
       </Dialog>
-      
-      <WhatsAppTemplateEditor
-        isOpen={showTemplateEditor}
-        onClose={() => setShowTemplateEditor(false)}
-        initialTemplate={messageTemplate}
-        onSave={handleSaveTemplate}
-        appointment={appointment}
-      />
     </>
   );
 };

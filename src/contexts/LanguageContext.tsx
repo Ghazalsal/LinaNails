@@ -85,12 +85,10 @@ export const translations = {
     
     // WhatsApp Message Template
     whatsappMessageTemplate: 'Hello {clientName}, this is a reminder for your appointment at Lina Pure Nails:\n\nDate: {date}\nTime: {time}\nService: {service}\n\nWe look forward to seeing you!',
-    editMessageTemplate: 'Edit Message Template',
     saveTemplate: 'Save Template',
     messageTemplateUpdated: 'Message template updated successfully',
     availableVariables: 'Available Variables',
     preview: 'Preview',
-sendWhatsAppReminder: 'Send WhatsApp Reminder',
     
     // Action buttons
     edit: 'Edit',
@@ -199,7 +197,6 @@ sendWhatsAppReminder: 'Send WhatsApp Reminder',
     errorUpdatingAppointment: 'حدث خطأ أثناء تحديث الموعد',
     deleted: 'تم الحذف',
     appointmentDeletedSuccessfully: 'تم حذف الموعد بنجاح',
-sendWhatsAppReminder: 'إرسال تذكير واتساب',
     errorDeletingAppointment: 'حدث خطأ أثناء حذف الموعد',
     
     // WhatsApp Message Template
