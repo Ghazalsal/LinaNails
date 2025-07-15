@@ -38,7 +38,6 @@ const DayAppointments = ({
     for (let hour = WORK_HOURS.start; hour < WORK_HOURS.end; hour++) {
       for (const minute of [0, 30]) {
         const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        // Get all appointments for this time slot
         const timeAppointments = appointments.filter(apt => apt.time === timeString);
         const isPast = isToday && (
           hour < now.getHours() || 
@@ -47,9 +46,7 @@ const DayAppointments = ({
         
         slots.push({
           time: timeString,
-          // Keep appointment for backward compatibility
           appointment: timeAppointments.length > 0 ? timeAppointments[0] : undefined,
-          // Add all appointments for this time slot
           appointments: timeAppointments,
           isPast
         });
@@ -64,22 +61,18 @@ const DayAppointments = ({
   const formattedHours = t('workingHours');
   const hasAppointments = appointments.length > 0;
 
-  // Handle click on an empty time slot
   const handleTimeSlotClick = (slot: { time: string; appointment: BackendAppointment | undefined; appointments?: BackendAppointment[]; isPast: boolean }) => {
     if (slot.isPast) return;
-    
     setSelectedSlot(slot.time);
     setShowAppointmentForm(true);
   };
   
-  // Handle click on a specific appointment
   const handleAppointmentClick = (appointment: BackendAppointment) => {
     setSelectedSlot(appointment.time);
     setSelectedAppointment(appointment);
     setShowAppointmentDetails(true);
   };
   
-  // Handle click on add appointment button in a time slot that already has appointments
   const handleAddToTimeSlot = (time: string) => {
     setSelectedSlot(time);
     setShowAppointmentForm(true);
@@ -93,10 +86,7 @@ const DayAppointments = ({
   const handleFormSubmit = async (data: Omit<BackendAppointment, 'id'>) => {
     setIsLoading(true);
     try {
-      // Format the date as YYYY-MM-DD for the API
       const formattedDate = format(date, 'yyyy-MM-dd');
-      
-      // Create appointment data with the selected date
       const appointmentData: CreateAppointmentData = {
         ...data,
         date: formattedDate
@@ -127,10 +117,7 @@ const DayAppointments = ({
   const handleUpdateAppointment = async (id: string, data: Partial<Omit<BackendAppointment, 'id'>>) => {
     setIsLoading(true);
     try {
-      // Format the date as YYYY-MM-DD for the API
       const formattedDate = format(date, 'yyyy-MM-dd');
-      
-      // Update appointment data with the selected date
       const appointmentData: UpdateAppointmentData = {
         ...data,
         date: formattedDate
@@ -182,8 +169,6 @@ const DayAppointments = ({
       setIsLoading(false);
     }
   };
-
-  // selectedAppointment is now managed by state
 
   return (
     <div className="space-y-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>

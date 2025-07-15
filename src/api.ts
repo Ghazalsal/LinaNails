@@ -15,17 +15,14 @@ export interface BackendAppointment {
 }
 
 export interface CreateAppointmentData extends Omit<BackendAppointment, "id"> {
-  date?: string; // Format: YYYY-MM-DD
+  date?: string;
 }
 
 export async function fetchAppointmentsByDate(date: Date) {
-  // Format date using local date components to avoid timezone issues
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 because months are 0-indexed
+  const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   const formatted = `${year}-${month}-${day}`;
-  
-  console.log('Fetching appointments for formatted date:', formatted, 'from original date:', date);
   
   const res = await fetch(
     `http://localhost:4002/api/appointments?date=${formatted}`
@@ -49,7 +46,6 @@ export async function createAppointment(
       },
       body: JSON.stringify(appointment),
     });
-    console.log({ res });
 
     if (!res.ok) {
       const errorText = await res.text().catch(() => "Unknown error");
@@ -59,17 +55,13 @@ export async function createAppointment(
     }
 
     const data: BackendAppointment | unknown = await res.json();
-    // Transform MongoDB _id to id in the response
     const createdAppointment = {
       ...(data as BackendAppointment),
       id: (data as any)?._id ?? (data as any)?.id,
     };
 
-    console.log("Successfully created appointment:", createdAppointment);
     return createdAppointment as BackendAppointment;
   } catch (error) {
-    console.error("Error in createAppointment:", error);
-
     if (error instanceof Error) {
       throw error;
     }
@@ -79,7 +71,7 @@ export async function createAppointment(
 }
 
 export interface UpdateAppointmentData extends Partial<Omit<BackendAppointment, "id">> {
-  date?: string; // Format: YYYY-MM-DD
+  date?: string;
 }
 
 export async function updateAppointment(
@@ -106,7 +98,6 @@ export async function updateAppointment(
 
     const data: BackendAppointment | unknown = await res.json();
 
-    // Transform MongoDB _id to id in the response
     const updatedAppointment = {
       ...(data as any),
       id: (data as any)?._id,
@@ -142,14 +133,46 @@ export async function deleteAppointment(id: string): Promise<void> {
       );
     }
 
-    console.log("Successfully deleted appointment:", id);
   } catch (error) {
     console.error("Error in deleteAppointment:", error);
-
     if (error instanceof Error) {
       throw error;
     }
 
     throw new Error("Unknown error occurred while deleting appointment");
+  }
+}
+
+/**
+ * Manually trigger sending reminders for tomorrow's appointments
+ * @returns A promise that resolves to a success message or rejects with an error
+ */
+export async function sendTomorrowReminders(): Promise<{ success: boolean; message: string }> {
+  try {
+    const res = await fetch(`http://localhost:4002/api/send-tomorrow-reminders`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+      },
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => "Unknown error");
+      throw new Error(
+        `Failed to send reminders: ${res.status} ${res.statusText} - ${errorText}`
+      );
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Error in sendTomorrowReminders:", error);
+
+    if (error instanceof Error) {
+      throw error;
+    }
+
+    throw new Error("Unknown error occurred while sending reminders");
   }
 }

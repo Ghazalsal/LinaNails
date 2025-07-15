@@ -10,20 +10,16 @@ interface LanguageContextType {
 
 export const translations = {
   en: {
-    // Header
     dashboardTitle: 'Appointment Dashboard',
 
-    // Calendar & Schedule
     workingHours: 'Working Hours: 10:00 AM - 8:00 PM',
     noAppointments: 'No appointments scheduled for this day',
     todayAppointments: 'Today\'s Appointments',
     clickTimeSlot: 'Click on a specific time to view details or add appointment',
 
-    // Time slots
     available: 'Available',
     past: 'Past',
 
-    // Appointment Form
     newAppointment: 'New Appointment on',
     fillDetails: 'Fill in the details below to book a new appointment',
     clientName: 'Client Name',
@@ -38,16 +34,10 @@ export const translations = {
     cancel: 'Cancel',
     addAppointment: 'Add Appointment',
 
-    // Services
     manicure: 'Manicure',
     pedicure: 'Pedicure',
-    gelNails: 'Gel Nails',
-    nailArt: 'Nail Art',
-    polishChange: 'Polish Change',
-    acrylicFullSet: 'Acrylic Full Set',
-    acrylicFill: 'Acrylic Fill',
+    both: 'Both',
 
-    // Appointment Details
     appointmentDetails: 'Appointment Details',
     client: 'Client',
     duration: 'Duration',
@@ -56,14 +46,10 @@ export const translations = {
     sendWhatsAppReminder: 'Send WhatsApp Reminder',
     close: 'Close',
 
-    // Quick Stats
     quickStats: 'Quick Stats',
     totalHours: 'Total Hours',
-
-    // Buttons
     newAppointmentBtn: 'New Appointment',
 
-    // Toast messages
     appointmentAdded: 'Appointment Added',
     reminderSent: 'Reminder Sent',
     reminderSentDirectly: 'Message sent directly via WhatsApp API',
@@ -83,25 +69,25 @@ export const translations = {
     appointmentDeletedSuccessfully: 'Appointment deleted successfully',
     errorDeletingAppointment: 'Error deleting appointment',
     
-    // WhatsApp Message Template
     whatsappMessageTemplate: 'Hello {clientName}, this is a reminder for your appointment at Lina Pure Nails:\n\nDate: {date}\nTime: {time}\nService: {service}\n\nWe look forward to seeing you!',
-    saveTemplate: 'Save Template',
-    messageTemplateUpdated: 'Message template updated successfully',
-    availableVariables: 'Available Variables',
-    preview: 'Preview',
     
-    // Action buttons
     edit: 'Edit',
     delete: 'Delete',
     updateAppointment: 'Update Appointment',
     Type: 'Service',
     "AM": "AM",
     "PM": "PM",
+    
+    sendTomorrowReminders: 'Send Tomorrow\'s Reminders',
+    sendingReminders: 'Sending Reminders...',
+    remindersSent: 'Reminders Sent',
+    remindersError: 'Error Sending Reminders',
+    unknownError: 'An unknown error occurred',
+    scheduledReminderInfo: 'Reminders are automatically sent at 8:00 PM daily',
     "Loading...": "Loading...",
     "appointment": "appointment",
     "appointments": "appointments",
     
-    // Days of the week
     "Monday": "Monday",
     "Tuesday": "Tuesday",
     "Wednesday": "Wednesday",
@@ -110,7 +96,6 @@ export const translations = {
     "Saturday": "Saturday",
     "Sunday": "Sunday",
     
-    // Months
     "January": "January",
     "February": "February",
     "March": "March",
@@ -125,21 +110,17 @@ export const translations = {
     "December": "December"
   },
   ar: {
-    // Header
     dashboardTitle: 'لوحة تحكم المواعيد',
 
-    // Calendar & Schedule
     workingHours: 'ساعات العمل: 10:00 صباحاً - 8:00 مساءً',
     noAppointments: 'لا توجد مواعيد مجدولة لهذا اليوم',
     todayAppointments: 'مواعيد اليوم',
     appointments: 'مواعيد',
     clickTimeSlot: 'انقر على وقت محدد لعرض التفاصيل أو إضافة موعد',
 
-    // Time slots
     available: 'متاح',
     past: 'مضى',
 
-    // Appointment Form
     newAppointment: 'موعد جديد في',
     fillDetails: 'املأ التفاصيل أدناه لحجز موعد جديد',
     clientName: 'اسم العميل',
@@ -154,16 +135,10 @@ export const translations = {
     cancel: 'إلغاء',
     addAppointment: 'إضافة موعد',
 
-    // Services
     manicure: 'مانيكير',
     pedicure: 'باديكير',
-    gelNails: 'أظافر جل',
-    nailArt: 'فن الأظافر',
-    polishChange: 'تغيير الطلاء',
-    acrylicFullSet: 'مجموعة أكريليك كاملة',
-    acrylicFill: 'تعبئة أكريليك',
+    both: 'كلاهما',
 
-    // Appointment Details
     appointmentDetails: 'تفاصيل الموعد',
     client: 'العميل',
     duration: 'المدة',
@@ -172,14 +147,11 @@ export const translations = {
     sendWhatsAppReminder: 'إرسال تذكير واتساب',
     close: 'إغلاق',
 
-    // Quick Stats
     quickStats: 'إحصائيات سريعة',
     totalHours: 'إجمالي الساعات',
 
-    // Buttons
     newAppointmentBtn: 'موعد جديد',
 
-    // Toast messages
     appointmentAdded: 'تمت إضافة الموعد',
     reminderSent: 'تم إرسال التذكير',
     reminderSentDirectly: 'تم إرسال الرسالة مباشرة عبر واتساب API',
@@ -199,25 +171,24 @@ export const translations = {
     appointmentDeletedSuccessfully: 'تم حذف الموعد بنجاح',
     errorDeletingAppointment: 'حدث خطأ أثناء حذف الموعد',
     
-    // WhatsApp Message Template
     whatsappMessageTemplate: 'مرحباً {clientName}، هذا تذكير بموعدك في لينا بيور نيلز:\n\nالتاريخ: {date}\nالوقت: {time}\nالخدمة: {service}\n\nنتطلع لرؤيتك!',
-    editMessageTemplate: 'تعديل قالب الرسالة',
-    saveTemplate: 'حفظ القالب',
-    messageTemplateUpdated: 'تم تحديث قالب الرسالة بنجاح',
-    availableVariables: 'المتغيرات المتاحة',
-    preview: 'معاينة',
     
-    // Action buttons
     edit: 'تعديل',
     delete: 'حذف',
     updateAppointment: 'تحديث الموعد',
     Type: 'الخدمة',
     "AM": "صباحاً",
     "PM": "مساءً",
+    
+    sendTomorrowReminders: 'إرسال تذكيرات الغد',
+    sendingReminders: 'جاري إرسال التذكيرات...',
+    remindersSent: 'تم إرسال التذكيرات',
+    remindersError: 'خطأ في إرسال التذكيرات',
+    unknownError: 'حدث خطأ غير معروف',
+    scheduledReminderInfo: 'يتم إرسال التذكيرات تلقائياً في الساعة 8:00 مساءً يومياً',
     "Loading...": "جاري التحميل...",
     "appointment": "موعد",
     
-    // Days of the week
     "Monday": "الإثنين",
     "Tuesday": "الثلاثاء",
     "Wednesday": "الأربعاء",
@@ -226,7 +197,6 @@ export const translations = {
     "Saturday": "السبت",
     "Sunday": "الأحد",
     
-    // Months
     "January": "يناير",
     "February": "فبراير",
     "March": "مارس",

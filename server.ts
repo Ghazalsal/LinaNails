@@ -3,7 +3,9 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import asyncHandler from 'express-async-handler';
-import { Appointment } from './models/Appointment';
+import cron from 'node-cron';
+import { Appointment, AppointmentType } from './models/Appointment';
+import { sendWhatsAppMessage } from './src/utils/WhatsAppAPI';
 
 const app = express();
 
@@ -213,6 +215,91 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4002;
 
+async function sendTomorrowAppointmentReminders() {
+  try {
+    console.log('🔔 Running scheduled task: Sending reminders for tomorrow\'s appointments');
+    
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const year = tomorrow.getFullYear();
+    const month = tomorrow.getMonth(); 
+    const day = tomorrow.getDate();
+    
+    const startOfDay = new Date(year, month, day, 0, 0, 0, 0);
+    const endOfDay = new Date(year, month, day, 23, 59, 59, 999);
+    
+    const appointments = await Appointment.find({ 
+      time: { $gte: startOfDay, $lte: endOfDay } 
+    }).sort({ time: 1 });
+    
+    console.log(`Found ${appointments.length} appointments for tomorrow`);
+    
+    for (const appointment of appointments) {
+      if (!appointment.phone || appointment.phone.trim() === "") {
+        console.log(`Skipping reminder for ${appointment.name} - No phone number`);
+        continue;
+      }
+      
+      let serviceInArabic;
+      switch (appointment.type) {
+        case AppointmentType.Manicure:
+          serviceInArabic = "مانيكير";
+          break;
+        case AppointmentType.Pedicure:
+          serviceInArabic = "باديكير";
+          break;
+        case AppointmentType.Both:
+          serviceInArabic = "كلاهما";
+          break;
+        default:
+          serviceInArabic = appointment.type;
+      }
+      
+      const hours = appointment.time.getHours().toString().padStart(2, '0');
+      const minutes = appointment.time.getMinutes().toString().padStart(2, '0');
+      const timeString = `${hours}:${minutes}`;
+      
+      const formattedDate = `${day.toString().padStart(2, '0')}/${(month + 1).toString().padStart(2, '0')}/${year}`;
+      
+      const success = await sendWhatsAppMessage(
+        appointment.phone,
+        appointment.name,
+        formattedDate,
+        timeString,
+        serviceInArabic
+      );
+      
+      if (success) {
+        console.log(`✅ Reminder sent to ${appointment.name} (${appointment.phone})`);
+      } else {
+        console.error(`❌ Failed to send reminder to ${appointment.name} (${appointment.phone})`);
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
+    console.log('🏁 Finished sending reminders for tomorrow\'s appointments');
+  } catch (error) {
+    console.error('❌ Error sending reminders:', error);
+  }
+}
+
+cron.schedule('0 20 * * *', sendTomorrowAppointmentReminders, {
+  scheduled: true,
+  timezone: "Asia/Riyadh"
+});
+
+// Add an API endpoint to manually trigger reminders
+app.post('/api/send-tomorrow-reminders', asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  try {
+    await sendTomorrowAppointmentReminders();
+    res.json({ success: true, message: 'Reminders for tomorrow\'s appointments have been sent' });
+  } catch (error) {
+    console.error('Error sending reminders:', error);
+    res.status(500).json({ success: false, error: 'Failed to send reminders' });
+  }
+}));
+
 const startServer = (port: number, maxRetries: number = 5) => {
   if (maxRetries <= 0) {
     console.error('❌ Could not find an available port');
@@ -221,6 +308,7 @@ const startServer = (port: number, maxRetries: number = 5) => {
   
   const server = app.listen(port, () => {
     console.log(`🚀 Server is running on http://localhost:${port}`);
+    console.log(`📅 Scheduled task: Reminders for tomorrow's appointments will be sent at 8:00 PM daily`);
   });
   
   server.on('error', (err: Error) => {

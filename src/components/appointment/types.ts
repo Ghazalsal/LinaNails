@@ -12,3 +12,13 @@ export interface AppointmentDetailsModalProps {
   onDelete?: (id: string) => void;
   isLoading?: boolean;
 }
+
+export interface TimeSlotProps {
+  time: string;
+  appointment: BackendAppointment | undefined;
+  appointments?: BackendAppointment[];
+  isPast: boolean;
+  onClick: () => void;
+  onAppointmentClick?: (appointment: BackendAppointment) => void;
+  onAddClick?: () => void;
+}

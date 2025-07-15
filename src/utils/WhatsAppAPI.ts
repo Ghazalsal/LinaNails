@@ -10,7 +10,7 @@ export interface WhatsAppConfig {
 const config: WhatsAppConfig = {
   apiVersion: process.env.WHATSAPP_VERSION! || "v22.0",
   phoneNumberId: process.env.WHATSAPP_ID! || "741850909002950",
-  accessToken: process.env.WHATSAPP_TOKEN! || "EAAKhhtZApsEcBPGaX7IQ2spK0Rcyh6dVaR7ACwrr7ZCDUwpHFd72U1xbQT4OjxTafuNvjkgyKDiaeVnd5y7ZAXk8h2mWm3F1ffkAD9TCV79SZANvpQRnkDBPYPjp3l1PlTqgm9HMLyF4Xur5ZBBeZCK5hW7moojjsAIT0vZBMEDkaKTypMNIZA6hwbBocZAvWgSaOyxsLioBhKB1YZBsYofKL2J968Kt63d5XKkNEERzNbcD6TKYAZCS211DjpIHOBkxAZDZD", // <-- Don't forget to update this!
+  accessToken: process.env.WHATSAPP_TOKEN! || "EAAKhhtZApsEcBPGaxhdXfUsTDwbzDZCNuDVOgJHRBKrdkMG7gWpvzZAK07Moapis97YkS7pn8GWZCNZAQVlWXHUkl9RZCwDtt7z43aVWvznkERxYNw7J65JF96VfimKYP7PQSOnhUYkPoZBZBat6clNZBe7APiVoCjaBFr1MkzFAKWu4Mv2JPOk4MHHqmMszdphT93BwhZB8FV23T0VjqJCYYQS3wE4xEgywevx9Clbq49AfMtoZAIKZBzNyPTdysWs8gQZDZD", // <-- Don't forget to update this!
 };
 
 export const sendWhatsAppMessage = async (
@@ -19,7 +19,7 @@ export const sendWhatsAppMessage = async (
   date: string,
   time: string,
   service: string
-): Promise<Response> => {
+): Promise<boolean> => {
   const cleanedPhoneNumber = phoneNumber.replace(/[^\d]/g, "");
   const { phoneNumberId, accessToken, apiVersion } = config;
 
@@ -37,7 +37,7 @@ export const sendWhatsAppMessage = async (
     template: {
       name: "lina_appointment2",
       language: {
-        code: "ar", // Arabic language
+        code: "ar", 
       },
       components: [
         {
@@ -46,7 +46,7 @@ export const sendWhatsAppMessage = async (
             {
               type: "image",
               image: {
-                link: "https://raw.githubusercontent.com/Ghazalsal/image/main/315547457_114440274812316_1595265513982162514_n.png"
+                link: "https://raw.githubusercontent.com/Ghazalsal/image/refs/heads/main/logo-lina.png"
               }
             }
           ]
@@ -54,17 +54,15 @@ export const sendWhatsAppMessage = async (
         {
           type: "body",
           parameters: [
-            { type: "text", text: clientName }, // {{1}}
-            { type: "text", text: date },       // {{2}}
-            { type: "text", text: time },       // {{3}}
-            { type: "text", text: service },    // {{4}}
+            { type: "text", text: clientName },
+            { type: "text", text: date },
+            { type: "text", text: time },
+            { type: "text", text: service },
           ]
         }
       ]
     }
   };
-
-  console.log("📤 Sending WhatsApp message to:", cleanedPhoneNumber);
 
   try {
     const response = await fetch(apiUrl, {
@@ -78,14 +76,11 @@ export const sendWhatsAppMessage = async (
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("❌ WhatsApp API Error:", errorData);
       throw new Error(errorData.error?.message || "Unknown error from WhatsApp API.");
     }
-
-    console.log("✅ Message sent successfully");
-    return response;
+    return true;
   } catch (err) {
     console.error("🚨 Failed to send WhatsApp message:", err);
-    throw err;
+    return false;
   }
 };

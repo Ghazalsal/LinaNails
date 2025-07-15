@@ -2,7 +2,6 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { format } from 'date-fns';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Dialog,
@@ -18,24 +17,7 @@ import { AppointmentFormFields, TypesOptions } from './forms/AppointmentFormFiel
 import { useLanguage } from '@/contexts/LanguageContext';
 import { BackendAppointment } from '@/api';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-const appointmentSchema = z.object({
-  name: z.string().min(2, { message: "Client name is required" }),
-  type: z.string().min(1, { message:"Type is required" }),
-  time: z.string().min(1, { message: "Appointment time is required" }),
-  duration: z.number().positive({ message: "Duration must be positive" }),
-  phone: z.string().min(10, { message: "Valid phone number required" }),
-  notes: z.string().optional(),
-}); 
-
-export type FormValues = z.infer<typeof appointmentSchema>;
-
-interface InitialValues {
-  name?: string;
-  type?: string;
-  phone?: string;
-  notes?: string;
-}
+import { appointmentSchema, FormValues, InitialValues } from './util';
 
 const AppointmentForm = ({ 
   isOpen, 
@@ -74,7 +56,6 @@ const AppointmentForm = ({
       form.setValue('time', preselectedTime);
     }
 
-    // Set initial values when editing an appointment
     if (initialValues) {
       if (initialValues.name) form.setValue('name', initialValues.name);
       if (initialValues.type) {
@@ -116,16 +97,13 @@ const AppointmentForm = ({
         <DialogHeader>
           <DialogTitle className="text-xl font-serif text-salon-gold text-center">
             {isUpdate ? t('updateAppointment') : t('newAppointment')} {(() => {
-              // Get the formatted date parts
               const month = format(date, "MMMM");
               const shortMonth = format(date, "MMM");
               const dayNum = format(date, "d");
               const year = format(date, "yyyy");
               
-              // Translate month
               const translatedMonth = t(month);
               
-              // Return formatted date string based on language
               return language === 'ar'
                 ? `${dayNum} ${translatedMonth.substring(0, 3)}، ${year}`
                 : `${shortMonth} ${dayNum}, ${year}`;

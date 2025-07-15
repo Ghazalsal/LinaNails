@@ -1,24 +1,13 @@
 import React from 'react';
 import { cn } from '@/libs/utils';
-import { BackendAppointment } from '@/api';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { formatTimeForDisplay } from '@/utils/AppointmentUtils';
+import { formatTimeForDisplay, translateServiceType } from '@/utils/AppointmentUtils';
 import { Plus } from 'lucide-react';
-
-interface TimeSlotProps {
-  time: string;
-  appointment: BackendAppointment | undefined; // Keeping for backward compatibility
-  appointments?: BackendAppointment[]; // New prop for multiple appointments
-  isPast: boolean;
-  onClick: () => void;
-  onAppointmentClick?: (appointment: BackendAppointment) => void; // New callback for clicking a specific appointment
-  onAddClick?: () => void; // New callback for adding a new appointment at this time
-}
+import { TimeSlotProps } from './types';
 
 const TimeSlot = ({ time, appointment, appointments = [], isPast, onClick, onAppointmentClick, onAddClick }: TimeSlotProps) => {
   const { t, language } = useLanguage();
   
-  // For backward compatibility, if appointment is provided but appointments is not, use appointment
   const allAppointments = appointments.length > 0 ? appointments : (appointment ? [appointment] : []);
   const hasAppointments = allAppointments.length > 0;
   
@@ -48,7 +37,6 @@ const TimeSlot = ({ time, appointment, appointments = [], isPast, onClick, onApp
         )}
       </div>
       
-      {/* Display all appointments */}
       {hasAppointments && (
         <div className="space-y-2">
           {allAppointments.map((apt) => (
@@ -57,11 +45,10 @@ const TimeSlot = ({ time, appointment, appointments = [], isPast, onClick, onApp
               className="flex items-center justify-between p-2 bg-white rounded border border-salon-gold cursor-pointer hover:bg-gray-50"
               onClick={() => onAppointmentClick ? onAppointmentClick(apt) : undefined}
             >
-              <span className="text-sm">{apt.name} - {apt.type}</span>
+              <span className="text-sm">{apt.name} - {translateServiceType(apt.type, language, t)}</span>
             </div>
           ))}
           
-          {/* Add new appointment button */}
           {!isPast && onAddClick && (
             <div 
               className="flex items-center justify-center p-2 bg-white rounded border border-dashed border-salon-gold cursor-pointer hover:bg-gray-50 mt-2"

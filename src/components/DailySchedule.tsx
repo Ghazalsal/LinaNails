@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 import { 
   Card, 
   CardContent, 
-  CardDescription, 
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
@@ -28,17 +27,14 @@ const DailySchedule = ({
         <div>
           <CardTitle className="text-xl font-serif text-salon-gold" dir={language === 'ar' ? 'rtl' : 'ltr'}>
             {(() => {
-              // Get the formatted date parts
               const day = format(date, "EEEE");
               const month = format(date, "MMMM");
               const dayNum = format(date, "d");
               const year = format(date, "yyyy");
               
-              // Translate day and month
               const translatedDay = t(day);
               const translatedMonth = t(month);
               
-              // Return formatted date string based on language
               return language === 'ar'
                 ? `${translatedDay}، ${dayNum} ${translatedMonth}، ${year}`
                 : `${translatedDay}, ${translatedMonth} ${dayNum}, ${year}`;
