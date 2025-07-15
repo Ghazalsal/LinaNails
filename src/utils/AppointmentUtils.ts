@@ -24,7 +24,7 @@ export const translateServiceTypeToArabic = (serviceType: string): string => {
     case AppointmentType.Pedicure:
       return "باديكير";
     case AppointmentType.Both:
-      return "كلاهما";
+      return "باديكير و مانيكير";
     default:
       return serviceType;
   }
@@ -47,7 +47,7 @@ export const translateServiceType = (serviceType: string, language: string, t: (
       case AppointmentType.Pedicure:
         return t("pedicure");
       case AppointmentType.Both:
-        return t("both");
+        return t("pedicure") + " and " + t("manicure");
       default:
         return serviceType;
     }

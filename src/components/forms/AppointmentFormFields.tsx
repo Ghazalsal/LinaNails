@@ -17,13 +17,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Control } from 'react-hook-form';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { FormValues } from '../AppointmentForm';
 import { AppointmentType } from '@/api';
+import { FormValues } from '../util';
 
 const TypesOptions = [
   { id: AppointmentType.Manicure, name: { en: "Manicure", ar: "مانيكير" }, duration: 45 },
   { id: AppointmentType.Pedicure, name: { en: "Pedicure", ar: "باديكير" }, duration: 60 },
-  { id: AppointmentType.Both, name: { en: "Both", ar: "كلاهما" }, duration: 90 },
+  { id: AppointmentType.Both, name: { en: "Pedicure and Manicure", ar: "باديكير و مانيكير" }, duration: 90 },
 ];
 
 const generateTimeOptions = () => {
