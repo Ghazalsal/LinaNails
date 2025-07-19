@@ -99,13 +99,13 @@ export async function updateAppointment(
     const data: BackendAppointment | unknown = await res.json();
 
     const updatedAppointment = {
-      ...(data as any),
-      id: (data as any)?._id,
+      ...(data as BackendAppointment),
+      id: (data as any)?._id ?? (data as any)?.id,
       _id: undefined,
     };
 
     console.log("Successfully updated appointment:", updatedAppointment);
-    return updatedAppointment as BackendAppointment;
+    return updatedAppointment;
   } catch (error) {
     console.error("Error in updateAppointment:", error);
 

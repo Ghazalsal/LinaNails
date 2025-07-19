@@ -10,7 +10,7 @@ import { sendWhatsAppMessage } from './src/utils/WhatsAppAPI';
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:5174', 'http://127.0.0.1:5174'],
   credentials: true,
 }));
 app.use(express.json());
@@ -250,7 +250,7 @@ async function sendTomorrowAppointmentReminders() {
           serviceInArabic = "باديكير";
           break;
         case AppointmentType.Both:
-          serviceInArabic = "كلاهما";
+          serviceInArabic = "مانيكير و باديكير";
           break;
         default:
           serviceInArabic = appointment.type;
@@ -326,3 +326,17 @@ const startServer = (port: number, maxRetries: number = 5) => {
 };
 
 startServer(PORT);
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Support __dirname in ESModules or TS
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Handle frontend routing (for React/Vite apps)
+app.get('*', (_req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});

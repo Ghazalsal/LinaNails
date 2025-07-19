@@ -19,9 +19,9 @@ import { BackendAppointment } from '@/api';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { appointmentSchema, FormValues, InitialValues } from './util';
 
-const AppointmentForm = ({ 
-  isOpen, 
-  onClose, 
+const AppointmentForm = ({
+  isOpen,
+  onClose,
   onSubmit,
   date,
   preselectedTime = null,
@@ -38,7 +38,7 @@ const AppointmentForm = ({
 }) => {
   const { language, t } = useLanguage();
   const isMobile = useIsMobile();
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
@@ -91,8 +91,8 @@ const AppointmentForm = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent 
-        className={`sm:max-w-[425px]`} 
+      <DialogContent
+        className={`sm:max-w-[425px]`}
         dir={language === 'ar' ? 'rtl' : 'ltr'}>
         <DialogHeader>
           <DialogTitle className="text-xl font-serif text-salon-gold text-center">
@@ -101,15 +101,15 @@ const AppointmentForm = ({
               const shortMonth = format(date, "MMM");
               const dayNum = format(date, "d");
               const year = format(date, "yyyy");
-              
+
               const translatedMonth = t(month);
-              
+
               return language === 'ar'
-                ? `${dayNum} ${translatedMonth.substring(0, 3)}، ${year}`
+                ? `${dayNum} ${translatedMonth}، ${year}`
                 : `${shortMonth} ${dayNum}, ${year}`;
             })()}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-center">
             {t('fillDetails')}
           </DialogDescription>
         </DialogHeader>

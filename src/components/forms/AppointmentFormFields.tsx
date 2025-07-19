@@ -66,7 +66,7 @@ const AppointmentFormFields = ({ control, onServiceChange }: AppointmentFormFiel
           <FormItem>
             <FormLabel>{t('clientName')}</FormLabel>
             <FormControl>
-              <Input placeholder={t('enterClientName')} {...field} />
+              <Input placeholder={t('enterClientName')} {...field} dir={language === 'ar' ? 'rtl' : 'ltr'} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -80,7 +80,7 @@ const AppointmentFormFields = ({ control, onServiceChange }: AppointmentFormFiel
           <FormItem>
             <FormLabel>{t('phoneNumber')}</FormLabel>
             <FormControl>
-              <Input placeholder="+972-59-123-4567" {...field} />
+              <Input placeholder="+972-59-123-4567" {...field} dir='ltr' />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -101,13 +101,13 @@ const AppointmentFormFields = ({ control, onServiceChange }: AppointmentFormFiel
               defaultValue={field.value}
             >
               <FormControl>
-                <SelectTrigger>
+                <SelectTrigger dir={language === 'ar' ? 'rtl' : 'ltr'}>
                   <SelectValue placeholder={t('selectService')} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
                 {TypesOptions.map((service) => (
-                  <SelectItem key={service.id} value={service.id}>
+                  <SelectItem key={service.id} value={service.id} dir={language === 'ar' ? 'rtl' : 'ltr'}>
                     {service.name[language]} ({service.duration} {t('minute')})
                   </SelectItem>
                 ))}
@@ -126,13 +126,13 @@ const AppointmentFormFields = ({ control, onServiceChange }: AppointmentFormFiel
             <FormLabel>{t('time')}</FormLabel>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <FormControl>
-                <SelectTrigger>
+                <SelectTrigger dir={language === 'ar' ? 'rtl' : 'ltr'}>
                   <SelectValue placeholder={t('selectTime')} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
                 {TIME_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
+                  <SelectItem key={option.value} value={option.value} dir={language === 'ar' ? 'rtl' : 'ltr'}>
                     {option.label[language]}
                   </SelectItem>
                 ))}
@@ -154,6 +154,7 @@ const AppointmentFormFields = ({ control, onServiceChange }: AppointmentFormFiel
                 placeholder={t('addNotes')} 
                 className="resize-none" 
                 {...field} 
+                dir={language === 'ar' ? 'rtl' : 'ltr'}
               />
             </FormControl>
             <FormMessage />

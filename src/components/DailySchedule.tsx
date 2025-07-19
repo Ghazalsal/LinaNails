@@ -17,7 +17,7 @@ const DailySchedule = ({
 }: {
   date: Date;
   appointments: BackendAppointment[];
-  onAppointmentsChange?: () => void;
+  onAppointmentsChange?: () => Promise<boolean>;
 }) => {
   const { language, t } = useLanguage();
 

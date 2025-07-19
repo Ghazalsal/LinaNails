@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,7 @@ import {
 import { BackendAppointment } from "@/api";
 import AppointmentForm from "../AppointmentForm";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { sendWhatsAppMessage } from "../../utils/WhatsAppAPI";
+// import { sendWhatsAppMessage } from "../../utils/WhatsAppAPI";
 import { AppointmentDetailsModalProps } from "./types";
 
 const AppointmentDetailsModal = ({
@@ -33,43 +33,51 @@ const AppointmentDetailsModal = ({
   const [showEditForm, setShowEditForm] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  const handleSendWhatsAppReminder = async () => {
-    if (!appointment) return;
-
-    setIsSending(true);
-    if (!appointment.phone || appointment.phone.trim() === "") {
-      toast({
-        title: t("reminderError"),
-        description: t("missingPhoneNumber"),
-        variant: "destructive",
-      });
-      return;
+  // Reset edit form when appointment changes
+  useEffect(() => {
+    if (appointment && isOpen) {
+      // If the appointment data changes while modal is open, ensure we're showing the latest data
+      setShowEditForm(false);
     }
-    const serviceInArabic = translateServiceTypeToArabic(appointment.type);
+  }, [appointment, isOpen]);
 
-    const success = await sendWhatsAppMessage(
-      appointment.phone,
-      appointment.name,
-      date.toLocaleDateString(),
-      appointment.time,
-      serviceInArabic
-    );
+  // const handleSendWhatsAppReminder = async () => {
+  //   if (!appointment) return;
 
-    if (success) {
-      setIsSending(false);
-      toast({
-        title: t("reminderSent"),
-        description: t("reminderSentDirectly"),
-      });
-    } else {
-      setIsSending(false);
-      toast({
-        title: t("reminderError"),
-        description: t("whatsappSendError"),
-        variant: "destructive",
-      });
-    }
-  };
+  //   setIsSending(true);
+  //   if (!appointment.phone || appointment.phone.trim() === "") {
+  //     toast({
+  //       title: t("reminderError"),
+  //       description: t("missingPhoneNumber"),
+  //       variant: "destructive",
+  //     });
+  //     return;
+  //   }
+  //   const serviceInArabic = translateServiceTypeToArabic(appointment.type);
+
+  //   const success = await sendWhatsAppMessage(
+  //     appointment.phone,
+  //     appointment.name,
+  //     date.toLocaleDateString(),
+  //     appointment.time,
+  //     serviceInArabic
+  //   );
+
+  //   if (success) {
+  //     setIsSending(false);
+  //     toast({
+  //       title: t("reminderSent"),
+  //       description: t("reminderSentDirectly"),
+  //     });
+  //   } else {
+  //     setIsSending(false);
+  //     toast({
+  //       title: t("reminderError"),
+  //       description: t("whatsappSendError"),
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
 
   const handleEdit = () => {
     setShowEditForm(true);
@@ -204,7 +212,7 @@ const AppointmentDetailsModal = ({
                 )}
               </div>
 
-              <div className="w-full">
+              {/* <div className="w-full">
                 {appointment?.phone && (
                   <div className="space-y-2">
                     <Button
@@ -217,7 +225,7 @@ const AppointmentDetailsModal = ({
                     </Button>
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
         </DialogContent>

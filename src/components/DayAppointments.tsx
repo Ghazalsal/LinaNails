@@ -21,7 +21,7 @@ const DayAppointments = ({
 }: {
   date: Date;
   appointments: BackendAppointment[];
-  onAppointmentsChange?: () => void;
+  onAppointmentsChange?: () => Promise<boolean>;
 }) => {
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<BackendAppointment | undefined>(undefined);
@@ -34,16 +34,16 @@ const DayAppointments = ({
     const slots = [];
     const now = new Date();
     const isToday = format(date, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd');
-    
+
     for (let hour = WORK_HOURS.start; hour < WORK_HOURS.end; hour++) {
       for (const minute of [0, 30]) {
         const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         const timeAppointments = appointments.filter(apt => apt.time === timeString);
         const isPast = isToday && (
-          hour < now.getHours() || 
+          hour < now.getHours() ||
           (hour === now.getHours() && minute < now.getMinutes())
         );
-        
+
         slots.push({
           time: timeString,
           appointment: timeAppointments.length > 0 ? timeAppointments[0] : undefined,
@@ -52,7 +52,7 @@ const DayAppointments = ({
         });
       }
     }
-    
+
     return slots;
   };
 
@@ -66,13 +66,13 @@ const DayAppointments = ({
     setSelectedSlot(slot.time);
     setShowAppointmentForm(true);
   };
-  
+
   const handleAppointmentClick = (appointment: BackendAppointment) => {
     setSelectedSlot(appointment.time);
     setSelectedAppointment(appointment);
     setShowAppointmentDetails(true);
   };
-  
+
   const handleAddToTimeSlot = (time: string) => {
     setSelectedSlot(time);
     setShowAppointmentForm(true);
@@ -91,17 +91,21 @@ const DayAppointments = ({
         ...data,
         date: formattedDate
       };
-      
+
       const newAppointment = await createAppointment(appointmentData);
-      setShowAppointmentForm(false);
-      if(newAppointment?.id){
-        toast({
-        title: t('appointmentAdded'),
-        description: t('appointmentAdded'),
-      });
+      if (newAppointment?.id) {
+        // First refresh the appointments list to get the latest data from the server
         if (onAppointmentsChange) {
-          onAppointmentsChange();
+          await onAppointmentsChange();
         }
+
+        // Update UI state after data refresh
+        setShowAppointmentForm(false);
+
+        toast({
+          title: t('appointmentAdded'),
+          description: t('appointmentAdded'),
+        });
       }
     } catch (error) {
       toast({
@@ -122,18 +126,31 @@ const DayAppointments = ({
         ...data,
         date: formattedDate
       };
-      
-      const updated = await updateAppointment(id, appointmentData);
-      if(updated?.id){
-        setShowAppointmentDetails(false);
-        setSelectedAppointment(undefined);
+
+      const updatedFromServer = await updateAppointment(id, appointmentData);
+      if (updatedFromServer?.id) {
+
+        await onAppointmentsChange?.();
+        const updated: BackendAppointment = {
+          ...updatedFromServer,
+          time: format(new Date(updatedFromServer.time), 'HH:mm'),
+          id: updatedFromServer.id,
+          name: updatedFromServer.name,
+          phone: updatedFromServer.phone,
+          type: updatedFromServer.type,
+          notes: updatedFromServer.notes
+        };
+
+        setSelectedAppointment(updated);
+        if (updated.time) {
+          setSelectedSlot(updated.time);
+        }
+        setShowAppointmentDetails(true);
+        setShowAppointmentForm(false);
         toast({
           title: t('updated'),
           description: t('appointmentUpdatedSuccessfully'),
         });
-        if (onAppointmentsChange) {
-          onAppointmentsChange();
-        }
       }
     } catch (error) {
       toast({
@@ -157,7 +174,7 @@ const DayAppointments = ({
         description: t('appointmentDeletedSuccessfully'),
       });
       if (onAppointmentsChange) {
-        onAppointmentsChange();
+        await onAppointmentsChange();
       }
     } catch (error) {
       toast({
@@ -173,7 +190,7 @@ const DayAppointments = ({
   return (
     <div className="space-y-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="text-sm text-gray-500">{formattedHours}</div>
-      
+
       {!hasAppointments && (
         <div className="py-4 text-center border border-dashed rounded-md">
           <p className="mb-2 text-gray-500">{t('noAppointments')}</p>
@@ -200,8 +217,8 @@ const DayAppointments = ({
         </Button>
       </div>
 
-      <AppointmentForm 
-        isOpen={showAppointmentForm} 
+      <AppointmentForm
+        isOpen={showAppointmentForm}
         onClose={() => setShowAppointmentForm(false)}
         onSubmit={handleFormSubmit}
         date={date}

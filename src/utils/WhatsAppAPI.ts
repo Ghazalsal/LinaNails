@@ -10,7 +10,7 @@ export interface WhatsAppConfig {
 const config: WhatsAppConfig = {
   apiVersion: process.env.WHATSAPP_VERSION! || "v22.0",
   phoneNumberId: process.env.WHATSAPP_ID! || "741850909002950",
-  accessToken: process.env.WHATSAPP_TOKEN! || "EAAKhhtZApsEcBPP6bvCrgOb4WfEIjZBTJ73bZBFgsr2d3dZA2gAt9qBuZCXJ1YGpCL0a9GwyzN9IRkNIQe6ZC58FGIUS3zByNfKTMb8vQCb8Hd7IZA2RKGTxf6rohZClGtQubbCemRsVZC5THWC6OoyoAZCVdpF5bkGMogboHYU1ByOaJMJlkN8PkFpdxAaUhWZAv4s12mdD57FkfoHaEaT0jMI68HQ92JC3e7NwlWEq3DH3vk12ZCj6nyRAFxZAWeqRdfL10", // <-- Don't forget to update this!
+  accessToken: process.env.WHATSAPP_TOKEN! || "EAAKhhtZApsEcBPPxUIXzlj2mIZAMOTZAHFE6sWU7mYrCdpdZADvM2daqOe9TjvrpN0eVZAZCPHFOkhuhmCGss7ehP16aEFbQgqSQnwBDUX9p6Rt1m2ZB44QLG21zXmlKwoFQsHCbO2B7b56WFB9a5V6WG0cvDYD1LqPh4wcK6VA6lOhQkUCy5UlrraLkmSBEAkJTnx7WVifreEJbZAuvatPSwpaxZBC60ptN6dzRZACYc3MSMOqRVuPh31cOf4ShS3RAZDZD", // <-- Don't forget to update this!
 };
 
 export const sendWhatsAppMessage = async (

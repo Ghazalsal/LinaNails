@@ -36,7 +36,7 @@ export const translations = {
 
     manicure: 'Manicure',
     pedicure: 'Pedicure',
-    both: 'Both',
+    both: 'Manicure And Pedicure',
 
     appointmentDetails: 'Appointment Details',
     client: 'Client',
@@ -137,7 +137,7 @@ export const translations = {
 
     manicure: 'مانيكير',
     pedicure: 'باديكير',
-    both: 'كلاهما',
+    both: 'مانيكير و باديكير"',
 
     appointmentDetails: 'تفاصيل الموعد',
     client: 'العميل',

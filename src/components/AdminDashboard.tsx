@@ -8,13 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import AppointmentCalendar from './AdminCalendar';
 import { BackendAppointment, fetchAppointmentsByDate, sendTomorrowReminders } from '@/api';
-import { Bell } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [appointments, setAppointments] = useState<BackendAppointment[]>([]);
   const [loading, setLoading] = useState(false);
-  const [sendingReminders, setSendingReminders] = useState(false);
   const { toast } = useToast();
   const { language, t } = useLanguage();
 
@@ -22,7 +20,6 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const data = await fetchAppointmentsByDate(date);
-
       const converted: BackendAppointment[] = data.map((apt) => ({
         id: String(apt.id),
         name: apt.name,
@@ -32,13 +29,12 @@ const AdminDashboard = () => {
         phone: apt.phone,
         notes: apt.notes,
       }));
-
       setAppointments(converted);
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "خطأ",
-        description: "حدث خطأ أثناء تحميل المواعيد",
+        title: "\u062e\u0637\u0623",
+        description: "\u062d\u062f\u062b \u062e\u0637\u0623 \u0623\u062b\u0646\u0627\u0621 \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u0645\u0648\u0627\u0639\u064a\u062f",
       });
     } finally {
       setLoading(false);
@@ -55,28 +51,10 @@ const AdminDashboard = () => {
     }
   };
 
-  const refreshAppointments = useCallback(() => {
-    loadAppointments(selectedDate);
+  const refreshAppointments = useCallback(async () => {
+    await loadAppointments(selectedDate);
+    return true;
   }, [selectedDate, loadAppointments]);
-  
-  const handleSendReminders = async () => {
-    setSendingReminders(true);
-    try {
-      const result = await sendTomorrowReminders();
-      toast({
-        title: t('remindersSent'),
-        description: result.message,
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: t('remindersError'),
-        description: error instanceof Error ? error.message : t('unknownError'),
-      });
-    } finally {
-      setSendingReminders(false);
-    }
-  };
 
   return (
     <div className="container mx-auto p-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
@@ -120,18 +98,6 @@ const AdminDashboard = () => {
                     <p className="text-2xl font-bold">
                       {loading ? '...' : appointments.length}
                     </p>
-                  </div>
-                  
-                  <div className="mt-4">
-                    <Button 
-                      onClick={handleSendReminders} 
-                      disabled={sendingReminders}
-                      className="w-full bg-salon-gold hover:bg-salon-gold/90 text-white"
-                    >
-                      <Bell className="mr-2 h-4 w-4" />
-                      {sendingReminders ? t('sendingReminders') : t('sendTomorrowReminders')}
-                    </Button>
-                    <p className="text-xs text-gray-500 mt-1">{t('scheduledReminderInfo')}</p>
                   </div>
                 </div>
               </CardContent>
