@@ -7,7 +7,7 @@
     "dev": "vite",
     "dev:server": "nodemon --exec tsx server.ts",
     "dev:both": "concurrently \"npm run dev\" \"npm run dev:server\"",
-    "build": "vite build --config ./src/vite.config.ts && rm -rf public && mkdir public && cp -r src/dist/* public/",
+   "build": "vite build && rimraf public && mkdir public && cpx \"dist/**/*\" public",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "start": "tsx server.ts"
