@@ -1,240 +1,225 @@
-import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import AppointmentDetailsModal from './appointment/AppointmentDetailsModal';
-import TimeSlot from './appointment/TimeSlot';
-import { createAppointment, updateAppointment, deleteAppointment, BackendAppointment, CreateAppointmentData, UpdateAppointmentData } from '@/api';
-import { useToast } from '@/hooks/use-toast';
-import AppointmentForm from './AppointmentForm';
-import { useLanguage } from '@/contexts/LanguageContext';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useMemo } from "react";
+import { format, isBefore, parseISO } from "date-fns";
+import { BackendAppointment } from "@/api";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/hooks/use-toast";
+import {
+  createAppointment,
+  updateAppointment,
+  deleteAppointment
+} from "@/api";
+import TimeSlot from "./appointment/TimeSlot";
+import AppointmentForm from "./AppointmentForm";
+import { AppointmentDetailsModal } from "./appointment/AppointmentDetailsModal";
+import { AppointmentFormInput } from "./appointment/types";
 
-const WORK_HOURS = {
-  start: 10,
-  end: 20,
-};
-
-const DayAppointments = ({
-  date,
-  appointments,
-  onAppointmentsChange
-}: {
+interface DayAppointmentsPropsFixed {
   date: Date;
   appointments: BackendAppointment[];
-  onAppointmentsChange?: () => Promise<boolean>;
+  onCreate: (appointment: BackendAppointment) => void;
+  onUpdate: (id: string, data: Partial<BackendAppointment>) => void;
+  onDelete: (id: string) => void;
+}
+
+const DayAppointments: React.FC<DayAppointmentsPropsFixed> = ({
+  date,
+  appointments,
+  onCreate,
+  onUpdate,
+  onDelete,
 }) => {
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [selectedAppointment, setSelectedAppointment] = useState<BackendAppointment | undefined>(undefined);
-  const [showAppointmentForm, setShowAppointmentForm] = useState(false);
-  const [showAppointmentDetails, setShowAppointmentDetails] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { t } = useLanguage();
   const { toast } = useToast();
 
-  const generateTimeSlots = () => {
-    const slots = [];
-    const now = new Date();
-    const isToday = format(date, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<BackendAppointment | undefined>();
+  const [editingAppointment, setEditingAppointment] = useState<BackendAppointment | undefined>();
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
 
-    for (let hour = WORK_HOURS.start; hour < WORK_HOURS.end; hour++) {
+  // Generate time slots from 8:00 AM to 8:00 PM in 30-minute intervals
+  const timeSlots = useMemo(() => {
+    const slots = [];
+    for (let hour = 8; hour < 20; hour++) {
       for (const minute of [0, 30]) {
         const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        const timeAppointments = appointments.filter(apt => apt.time === timeString);
-        const isPast = isToday && (
-          hour < now.getHours() ||
-          (hour === now.getHours() && minute < now.getMinutes())
-        );
-
+        const dateTime = new Date(date);
+        dateTime.setHours(hour, minute, 0, 0);
         slots.push({
           time: timeString,
-          appointment: timeAppointments.length > 0 ? timeAppointments[0] : undefined,
-          appointments: timeAppointments,
-          isPast
+          dateTime: dateTime.toISOString(),
         });
       }
     }
-
     return slots;
-  };
+  }, [date]);
 
-  const { t, language } = useLanguage();
-  const timeSlots = generateTimeSlots();
-  const formattedHours = t('workingHours');
-  const hasAppointments = appointments.length > 0;
+  // Map appointments to their time slots
+  const appointmentMap = useMemo(() => {
+    const map = new Map<string, BackendAppointment[]>();
+    appointments.forEach(appointment => {
+      try {
+        const appointmentTime = new Date(appointment.time);
+        const timeString = format(appointmentTime, 'HH:mm');
+        if (!map.has(timeString)) {
+          map.set(timeString, []);
+        }
+        map.get(timeString)!.push(appointment);
+      } catch (error) {
+        console.error('Error parsing appointment time:', error, appointment);
+      }
+    });
+    return map;
+  }, [appointments]);
 
-  const handleTimeSlotClick = (slot: { time: string; appointment: BackendAppointment | undefined; appointments?: BackendAppointment[]; isPast: boolean }) => {
-    if (slot.isPast) return;
-    setSelectedSlot(slot.time);
-    setShowAppointmentForm(true);
+  const handleAddAppointment = (timeSlot: string) => {
+    setSelectedTimeSlot(timeSlot);
+    setEditingAppointment(undefined);
+    setIsFormOpen(true);
   };
 
   const handleAppointmentClick = (appointment: BackendAppointment) => {
-    setSelectedSlot(appointment.time);
+    console.log("click", appointment)
     setSelectedAppointment(appointment);
-    setShowAppointmentDetails(true);
+    setIsDetailsModalOpen(true);
   };
 
-  const handleAddToTimeSlot = (time: string) => {
-    setSelectedSlot(time);
-    setShowAppointmentForm(true);
-  };
-
-  const handleAddAppointmentClick = () => {
-    setSelectedSlot(null);
-    setShowAppointmentForm(true);
-  };
-
-  const handleFormSubmit = async (data: Omit<BackendAppointment, 'id'>) => {
+  const handleFormSubmit = async (formData: AppointmentFormInput | any) => {
     setIsLoading(true);
+    console.log('Form data received:', formData);
+    
     try {
-      const formattedDate = format(date, 'yyyy-MM-dd');
-      const appointmentData: CreateAppointmentData = {
-        ...data,
-        date: formattedDate
+      // Prepare data in the format server expects
+      const submissionData = {
+        userId: formData.userId,
+        type: formData.type,
+        time: formData.time,
+        notes: formData.notes || "",
       };
-
-      const newAppointment = await createAppointment(appointmentData);
-      if (newAppointment?.id) {
-        // First refresh the appointments list to get the latest data from the server
-        if (onAppointmentsChange) {
-          await onAppointmentsChange();
-        }
-
-        // Update UI state after data refresh
-        setShowAppointmentForm(false);
-
+      
+      console.log({submissionData}, "from day ");
+      
+      if (editingAppointment) {
+        const updatedAppointment = await updateAppointment(editingAppointment.id, submissionData);
         toast({
-          title: t('appointmentAdded'),
-          description: t('appointmentAdded'),
-        });
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: t('error'),
-        description: t('errorBookingAppointment'),
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleUpdateAppointment = async (id: string, data: Partial<Omit<BackendAppointment, 'id'>>) => {
-    setIsLoading(true);
-    try {
-      const formattedDate = format(date, 'yyyy-MM-dd');
-      const appointmentData: UpdateAppointmentData = {
-        ...data,
-        date: formattedDate
-      };
-
-      const updatedFromServer = await updateAppointment(id, appointmentData);
-      if (updatedFromServer?.id) {
-
-        await onAppointmentsChange?.();
-        const updated: BackendAppointment = {
-          ...updatedFromServer,
-          time: format(new Date(updatedFromServer.time), 'HH:mm'),
-          id: updatedFromServer.id,
-          name: updatedFromServer.name,
-          phone: updatedFromServer.phone,
-          type: updatedFromServer.type,
-          notes: updatedFromServer.notes
-        };
-
-        setSelectedAppointment(updated);
-        if (updated.time) {
-          setSelectedSlot(updated.time);
-        }
-        setShowAppointmentDetails(true);
-        setShowAppointmentForm(false);
-        toast({
-          title: t('updated'),
+          title: t('appointmentUpdated'),
           description: t('appointmentUpdatedSuccessfully'),
         });
+        onUpdate(editingAppointment.id, updatedAppointment);
+      } else {
+        // Create new appointment
+        const newAppointment = await createAppointment(submissionData);
+        toast({
+          title: t('appointmentCreated'),
+        });
+        onCreate(newAppointment);
       }
+      setIsFormOpen(false);
+      setEditingAppointment(undefined);
+      setSelectedTimeSlot("");
     } catch (error) {
+      console.error('Error saving appointment:', error);
       toast({
-        variant: "destructive",
         title: t('error'),
-        description: t('errorUpdatingAppointment'),
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDeleteAppointment = async (id: string) => {
+  // Add this function to handle updates from the details modal
+  const handleUpdateAppointment = async (id: string, data: any) => {
+    setIsLoading(true);
+    console.log('Update appointment:', id, data);
+    
+    try {
+      const updatedAppointment = await updateAppointment(id, data);
+      toast({
+        title: t('appointmentUpdated'),
+      });
+      onUpdate(id, updatedAppointment);
+      setIsDetailsModalOpen(false);
+      setSelectedAppointment(undefined);
+    } catch (error) {
+      console.error('Error updating appointment:', error);
+      toast({
+        title: t('error'),
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (appointmentId: string) => {
     setIsLoading(true);
     try {
-      await deleteAppointment(id);
-      setShowAppointmentDetails(false);
-      setSelectedAppointment(undefined);
+      await deleteAppointment(appointmentId);
       toast({
-        title: t('deleted'),
-        description: t('appointmentDeletedSuccessfully'),
+        title: t('appointmentDeleted'),
       });
-      if (onAppointmentsChange) {
-        await onAppointmentsChange();
-      }
+      onDelete(appointmentId);
+      setIsDetailsModalOpen(false);
+      setSelectedAppointment(undefined);
     } catch (error) {
+      console.error('Error deleting appointment:', error);
       toast({
-        variant: "destructive",
         title: t('error'),
-        description: t('errorDeletingAppointment'),
       });
     } finally {
       setIsLoading(false);
     }
   };
 
+  console.log({ selectedAppointment })
+const handleClose =()=>{
+  
+}
   return (
-    <div className="space-y-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      <div className="text-sm text-gray-500">{formattedHours}</div>
+    <div className="space-y-2">
+      {timeSlots.map(({ time, dateTime }) => {
+        const appointment = appointmentMap.get(time);
+        const isPast = isBefore(parseISO(dateTime), new Date());
 
-      {!hasAppointments && (
-        <div className="py-4 text-center border border-dashed rounded-md">
-          <p className="mb-2 text-gray-500">{t('noAppointments')}</p>
-        </div>
-      )}
-
-      {timeSlots.map((slot) => (
-        <TimeSlot
-          key={slot.time}
-          time={slot.time}
-          appointment={slot.appointment}
-          appointments={slot.appointments}
-          isPast={slot.isPast}
-          onClick={() => handleTimeSlotClick(slot)}
-          onAppointmentClick={handleAppointmentClick}
-          onAddClick={!slot.isPast ? () => handleAddToTimeSlot(slot.time) : undefined}
-        />
-      ))}
-
-      <div className="flex justify-center mt-4">
-        <Button onClick={handleAddAppointmentClick} className="bg-salon-gold hover:bg-salon-light-gold text-white">
-          <Plus className={language === 'ar' ? 'mr-2 h-4 w-4' : 'ml-2 h-4 w-4'} />
-          {t('newAppointmentBtn')}
-        </Button>
-      </div>
+        return (
+          <TimeSlot
+            key={time}
+            timeLabel={format(parseISO(dateTime), 'h:mm a')}
+            time={dateTime}
+            appointments={appointmentMap.get(time) || []}
+            isPast={isPast}
+            onClick={() => handleAddAppointment(time)}
+            onAppointmentClick={handleAppointmentClick}
+            onAddClick={() => handleAddAppointment(time)}
+          />
+        );
+      })}
 
       <AppointmentForm
-        isOpen={showAppointmentForm}
-        onClose={() => setShowAppointmentForm(false)}
+        isOpen={isFormOpen}
+        onCancel={() => {
+          setIsFormOpen(false);
+          setEditingAppointment(undefined);
+          setSelectedTimeSlot("");
+        }}
         onSubmit={handleFormSubmit}
-        date={date}
-        preselectedTime={selectedSlot}
+        selectedDate={date}
+        selectedTimeSlot={selectedTimeSlot}
+        editingAppointment={editingAppointment}
+        isLoading={isLoading}
       />
 
       <AppointmentDetailsModal
-        isOpen={showAppointmentDetails}
+        isOpen={isDetailsModalOpen}
         onClose={() => {
-          setShowAppointmentDetails(false);
+          setIsDetailsModalOpen(false);
           setSelectedAppointment(undefined);
         }}
         appointment={selectedAppointment}
         date={date}
-        onUpdate={handleUpdateAppointment}
-        onDelete={handleDeleteAppointment}
+        onUpdate={handleUpdateAppointment} // Use the new function
+        onDelete={handleDelete}
         isLoading={isLoading}
       />
     </div>

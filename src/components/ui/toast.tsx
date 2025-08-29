@@ -113,12 +113,13 @@ const ToastTitle = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Title>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title>
 >(({ className, ...props }, ref) => {
-  const isRtl = document.dir === 'rtl';
+  const { language } = useLanguage();
   return (
     <ToastPrimitives.Title
       ref={ref}
-      className={cn("text-sm font-semibold", isRtl ? "text-right" : "text-left", className)}
+      className={cn("text-sm font-semibold", language === "ar" ? "text-right" : "text-left", className)}
       {...props}
+       dir={language === "ar" ? "rtl" : "ltr"}
     />
   )
 })

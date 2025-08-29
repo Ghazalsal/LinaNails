@@ -2,14 +2,24 @@
 
 import { AppointmentType } from "@/api";
 
-export const formatTimeForDisplay = (time: string) => {
-  // This is a workaround since we can't use hooks directly in utility functions
-  // We'll use English AM/PM by default and let components handle translation if needed
-  const [hourStr, minuteStr] = time.split(':');
-  const hour = parseInt(hourStr);
-  const isPm = hour >= 12;
-  const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-  return `${displayHour}:${minuteStr} ${isPm ? 'PM' : 'AM'}`;
+// utils/AppointmentUtils.ts
+export const formatTimeForDisplay = (timeString: string) => {
+  // Handle both ISO strings and HH:mm format
+  let hours, minutes;
+  
+  if (timeString.includes('T')) {
+    // ISO string
+    const date = new Date(timeString);
+    hours = date.getHours();
+    minutes = date.getMinutes();
+  } else {
+    // HH:mm format
+    [hours, minutes] = timeString.split(':').map(Number);
+  }
+
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const displayHours = hours % 12 || 12;
+  return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
 };
 
 /**
@@ -23,8 +33,14 @@ export const translateServiceTypeToArabic = (serviceType: string): string => {
       return "مانيكير";
     case AppointmentType.Pedicure:
       return "باديكير";
-    case AppointmentType.Both:
-      return "باديكير و مانيكير";
+    case AppointmentType.BothBasic:
+      return "مانيكير و باديكير أساسي";
+    case AppointmentType.BothFull:
+      return "مانيكير و باديكير كامل";
+    case AppointmentType.Eyebrows:
+      return "حواجب";
+    case AppointmentType.Lashes:
+      return "رموش";
     default:
       return serviceType;
   }
@@ -46,8 +62,14 @@ export const translateServiceType = (serviceType: string, language: string, t: (
         return t("manicure");
       case AppointmentType.Pedicure:
         return t("pedicure");
-      case AppointmentType.Both:
-        return t("pedicure") + " and " + t("manicure");
+      case AppointmentType.BothBasic:
+        return t("pedicure") + " and " + t("manicure") + " (" + t("basic") + ")";
+      case AppointmentType.BothFull:
+        return t("pedicure") + " and " + t("manicure") + " (" + t("full") + ")";
+      case AppointmentType.Eyebrows:
+        return t("eyebrows");
+      case AppointmentType.Lashes:
+        return t("lashes");
       default:
         return serviceType;
     }

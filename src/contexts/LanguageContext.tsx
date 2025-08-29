@@ -10,6 +10,7 @@ interface LanguageContextType {
 
 export const translations = {
   en: {
+    
     dashboardTitle: 'Appointment Dashboard',
 
     workingHours: 'Working Hours: 10:00 AM - 8:00 PM',
@@ -68,16 +69,16 @@ export const translations = {
     deleted: 'Deleted',
     appointmentDeletedSuccessfully: 'Appointment deleted successfully',
     errorDeletingAppointment: 'Error deleting appointment',
-    
+
     whatsappMessageTemplate: 'Hello {clientName}, this is a reminder for your appointment at Lina Pure Nails:\n\nDate: {date}\nTime: {time}\nService: {service}\n\nWe look forward to seeing you!',
-    
+
     edit: 'Edit',
     delete: 'Delete',
     updateAppointment: 'Update Appointment',
     Type: 'Service',
     "AM": "AM",
     "PM": "PM",
-    
+
     sendTomorrowReminders: 'Send Tomorrow\'s Reminders',
     sendingReminders: 'Sending Reminders...',
     remindersSent: 'Reminders Sent',
@@ -87,7 +88,7 @@ export const translations = {
     "Loading...": "Loading...",
     "appointment": "appointment",
     "appointments": "appointments",
-    
+
     "Monday": "Monday",
     "Tuesday": "Tuesday",
     "Wednesday": "Wednesday",
@@ -95,7 +96,7 @@ export const translations = {
     "Friday": "Friday",
     "Saturday": "Saturday",
     "Sunday": "Sunday",
-    
+
     "January": "January",
     "February": "February",
     "March": "March",
@@ -107,12 +108,33 @@ export const translations = {
     "September": "September",
     "October": "October",
     "November": "November",
-    "December": "December"
+    "December": "December",
+    "userAdded": "User added",
+    "userAddedSuccessfully": "User created successfully",
+    "addUser": "Add user",
+    "userName": "User name",
+    "noClientFound": "No Client found",
+    "searchClient": "Search client",
+    "selectClient": 'Select client',
+    "appointmentAddedSuccessfully": "Appointment added successfully",
+    "errorLoadingUsers": "Error loading users",
+    "errorLoadingAppointments": "Error loading appointments",
+    "viewUsers":"View Users",
+    "viewAppointments": "View Appointments",
+    "allUsers":"All Users",
+    "editUser":"Edit User",
+    "enterUserDetails":"Enter User Details",
+    "enterUserName":"Enter User Name",
+    "userUpdated":"Updated user successfully",
+"save":"Save",
+"appointmentCreated":"Appointment created successfully",
+"appointmentUpdated":"Appointment updated successfully",
+"appointmentDeleted":"Appointment deleted successfully",
   },
   ar: {
     dashboardTitle: 'لوحة تحكم المواعيد',
 
-    workingHours: 'ساعات العمل: 10:00 صباحاً - 8:00 مساءً',
+    workingHours: 'ساعات العمل: 8:00 صباحاً - 8:00 مساءً',
     noAppointments: 'لا توجد مواعيد مجدولة لهذا اليوم',
     todayAppointments: 'مواعيد اليوم',
     appointments: 'مواعيد',
@@ -170,16 +192,16 @@ export const translations = {
     deleted: 'تم الحذف',
     appointmentDeletedSuccessfully: 'تم حذف الموعد بنجاح',
     errorDeletingAppointment: 'حدث خطأ أثناء حذف الموعد',
-    
+
     whatsappMessageTemplate: 'مرحباً {clientName}، هذا تذكير بموعدك في لينا بيور نيلز:\n\nالتاريخ: {date}\nالوقت: {time}\nالخدمة: {service}\n\nنتطلع لرؤيتك!',
-    
+
     edit: 'تعديل',
     delete: 'حذف',
     updateAppointment: 'تحديث الموعد',
     Type: 'الخدمة',
     "AM": "صباحاً",
     "PM": "مساءً",
-    
+
     sendTomorrowReminders: 'إرسال تذكيرات الغد',
     sendingReminders: 'جاري إرسال التذكيرات...',
     remindersSent: 'تم إرسال التذكيرات',
@@ -188,7 +210,7 @@ export const translations = {
     scheduledReminderInfo: 'يتم إرسال التذكيرات تلقائياً في الساعة 8:00 مساءً يومياً',
     "Loading...": "جاري التحميل...",
     "appointment": "موعد",
-    
+
     "Monday": "الإثنين",
     "Tuesday": "الثلاثاء",
     "Wednesday": "الأربعاء",
@@ -196,7 +218,7 @@ export const translations = {
     "Friday": "الجمعة",
     "Saturday": "السبت",
     "Sunday": "الأحد",
-    
+
     "January": "يناير",
     "February": "فبراير",
     "March": "مارس",
@@ -208,7 +230,28 @@ export const translations = {
     "September": "سبتمبر",
     "October": "أكتوبر",
     "November": "نوفمبر",
-    "December": "ديسمبر"
+    "December": "ديسمبر",
+    "userAdded": "تم إضافة المستخدم",
+    "userAddedSuccessfully": "تم إضافة المستخدم بنجاح",
+    "addUser": "إضافة مستخدم",
+    "userName": "اسم المستخدم",
+    "noClientFound": "لم يتم العثور على العميل",
+    "searchClient": "بحث عن العميل",
+    "selectClient": "اختر العميل",
+    "appointmentAddedSuccessfully": "تم إضافة الموعد بنجاح",
+    "errorLoadingUsers": "حدث خطأ أثناء تحميل المستخدمين",
+    "errorLoadingAppointments": "حدث خطأ أثناء تحميل المواعيد",
+    "viewUsers":"عرض المستخدمين",
+    "viewAppointments": "عرض المواعيد",
+    "allUsers":"جميع المستخدمين",
+     "editUser":"تعديل المستخدم",
+    "enterUserDetails":"أدخل تفاصيل المستخدم",
+    "enterUserName":"أدخل اسم المستخدم",
+    "userUpdated":"تم تحديث المستخدم",
+  "save":"حفظ",
+  "appointmentCreated":"تم إضافة الموعد",
+  "appointmentUpdated":"تم تحديث الموعد",
+  "appointmentDeleted":"تم حذف الموعد",
   }
 };
 
