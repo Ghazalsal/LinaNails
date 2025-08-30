@@ -88,7 +88,7 @@ const AdminDashboard: React.FC = () => {
             <CardContent>
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div className="bg-salon-light-pink p-4 rounded-md">
-                  <p className="text-gray-600">{t("todayAppointments")}</p>
+                  <p className="text-gray-600 text-sm">{t("todayAppointments")}</p>
                   <p className="text-2xl font-bold">{loading ? "..." : appointments.length}</p>
                 </div>
               </div>

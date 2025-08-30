@@ -255,7 +255,7 @@ export const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = (
                     disabled={isLoading || isSending}
                   >
                     <MessageCircle className="h-4 w-4" />
-                    {isSending ? (t("sending") || "Sending...") : (t("sendWhatsAppReminder") || "Send WhatsApp Reminder")}
+                    {isSending ? (t("sending") || "Sending...") : (t("sendReminder"))}
                   </Button>
                 </div>
               )}

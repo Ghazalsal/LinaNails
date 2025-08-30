@@ -37,14 +37,14 @@ const UserForm: React.FC<UserFormProps> = ({ isOpen, onClose, onSubmit, editingU
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
-    defaultValues: { name: '', phone: '+972-' },
+    defaultValues: { name: '', phone: '+972' },
   });
 console.log({editingUser})
   useEffect(() => {
     if (editingUser) {
       form.reset({ name: editingUser.name, phone: editingUser.phone });
     } else {
-      form.reset({ name: '', phone: '+972-' });
+      form.reset({ name: '', phone: '+972' });
     }
   }, [editingUser, form]);
 

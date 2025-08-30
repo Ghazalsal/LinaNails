@@ -34,7 +34,7 @@ export const translations = {
     addNotes: 'Add any additional notes here',
     cancel: 'Cancel',
     addAppointment: 'Add Appointment',
-
+"sendReminder":"Send reminder",
     manicure: 'Manicure',
     pedicure: 'Pedicure',
     both: 'Manicure And Pedicure',
@@ -156,6 +156,7 @@ export const translations = {
     addNotes: 'أضف أي ملاحظات إضافية هنا',
     cancel: 'إلغاء',
     addAppointment: 'إضافة موعد',
+"sendReminder":"إرسال تذكير",
 
     manicure: 'مانيكير',
     pedicure: 'باديكير',
