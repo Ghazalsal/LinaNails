@@ -33,13 +33,15 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="container mx-auto p-4" dir={language === "ar" ? "rtl" : "ltr"}>
       <header className="mb-8">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-center mb-4 relative">
           <img
             src="logo-lina.png"
             alt="Lina Pure Nails Logo"
             className="h-20 sm:h-28 w-auto object-contain"
           />
-          <LanguageSwitcher />
+          <div className="absolute right-0 top-1/2 -translate-y-1/2">
+            <LanguageSwitcher />
+          </div>
         </div>
         <p className="text-gray-600 text-center">{t("dashboardTitle")}</p>
       </header>
