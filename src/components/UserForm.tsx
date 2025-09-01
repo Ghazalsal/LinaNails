@@ -20,7 +20,9 @@ import { User } from '@/api'; // Use backend User type
 // Validation schema
 const userSchema = z.object({
   name: z.string().min(2, { message: "Name is required" }),
-  phone: z.string().regex(/^\+972\d{7,9}$/, { message: "Valid Palestinian phone required" }),
+  phone: z.string().regex(/^\+97[02]\d{7,9}$/, { 
+    message: "Valid Palestinian phone required (+970 or +972)" 
+  }),
 });
 
 export type UserFormValues = z.infer<typeof userSchema>;
@@ -28,7 +30,7 @@ export type UserFormValues = z.infer<typeof userSchema>;
 interface UserFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (userData: User | Omit<User, 'id'>) => void; // Include id when editing
+  onSubmit: (userData: User | Omit<User, 'id'>) => void;
   editingUser?: User | any;
 }
 

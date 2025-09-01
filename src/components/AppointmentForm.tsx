@@ -54,11 +54,11 @@ function normalizeTimeString(value?: string): string | undefined {
 
 function timeStringToISOString(timeStr: string, date: Date): string {
   const [hours, minutes] = timeStr.split(':').map(Number);
-  
+
   const appointmentDate = new Date(date);
-  
+
   appointmentDate.setHours(hours, minutes, 0, 0);
-  
+
   return appointmentDate.toISOString();
 }
 
@@ -127,12 +127,12 @@ export default function AppointmentForm({
   useEffect(() => {
     console.log('Form initial values:', initialValues);
     console.log('Preselected time:', preselectedTime);
-    
+
     if (initialValues) {
       // Editing existing appointment
       const timeValue = normalizeTimeString(initialValues.time);
       console.log('Normalized time:', timeValue);
-      
+
       form.reset({
         userId: initialValues.userId || initialValues?.user?.id || "",
         type: initialValues.type || undefined,
@@ -144,7 +144,7 @@ export default function AppointmentForm({
       // Creating new appointment with preselected time
       const timeValue = normalizeTimeString(preselectedTime);
       console.log('Normalized preselected time:', timeValue);
-      
+
       form.reset({
         userId: "",
         type: undefined,
@@ -175,8 +175,8 @@ export default function AppointmentForm({
         notes: data.notes || "",
       };
 
-      console.log('Form data after processing:', submissionData);
       onSubmit(submissionData);
+      form.reset()
     } catch (err: any) {
       console.error('Form submission error:', err);
       toast({
@@ -235,7 +235,7 @@ export default function AppointmentForm({
                 {isLoading
                   ? (t("saving"))
                   : isUpdate
-                    ? (t("edit") )
+                    ? (t("edit"))
                     : (t("save"))
                 }
               </Button>
